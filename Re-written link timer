@@ -1,0 +1,68 @@
+import tkinter as tk
+from tkinter import messagebox
+import time
+import urllib.request
+from urllib.error import URLError, HTTPError
+
+def measure_load_time():
+    """
+    Measures the time it takes to load a URL provided by the user.
+    """
+    url = url_input.get().strip()
+
+    # Check if URL is empty
+    if not url:
+        messagebox.showerror("Error", "Please enter a URL.")
+        return
+
+    # Ensure the URL starts with http or https
+    if not url.startswith("http://") and not url.startswith("https://"):
+        url = "http://" + url
+
+    try:
+        # Start measuring time
+        start_time = time.time()
+
+        # Send HTTP GET request using urllib
+        with urllib.request.urlopen(url) as response:
+            # Measure time after request completion
+            end_time = time.time()
+
+            # Calculate the load time
+            load_time = end_time - start_time
+
+            # Check if the request was successful
+            if response.status == 200:
+                message = f"URL Loaded Successfully!\nTime Taken: {load_time:.2f} seconds"
+            else:
+                message = f"Failed to load the URL. Status Code: {response.status}\nTime Taken: {load_time:.2f} seconds"
+
+            messagebox.showinfo("Load Time Result", message)
+    except HTTPError as e:
+        # Handle HTTP errors
+        messagebox.showerror("Error", f"Failed to load the URL. HTTP Error: {e.code}")
+    except URLError as e:
+        # Handle URL errors (e.g., network problems)
+        messagebox.showerror("Error", f"Failed to load the URL. URL Error: {e.reason}")
+    except Exception as e:
+        # Catch any other exceptions
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+# Create a Tkinter window for user input
+root = tk.Tk()
+root.title("URL Load Time Checker")
+
+# Instruction Label
+instruction = tk.Label(root, text="Enter the URL to check its load time:")
+instruction.pack(pady=10)
+
+# URL input field
+url_input = tk.Entry(root, width=50)
+url_input.pack(pady=5)
+
+# Button to trigger URL load time check
+check_button = tk.Button(root, text="Check Load Time", command=measure_load_time)
+check_button.pack(pady=10)
+
+# Run the Tkinter event loop
+root.mainloop()
